@@ -1,0 +1,11 @@
+--- ./src/mysqlar.php.sh.org	2006-02-04 12:42:11.000000000 +0000
++++ ./src/mysqlar.php.sh	2006-10-02 22:20:04.000000000 +0000
+@@ -15,7 +15,7 @@
+  * and has only usage permissions, no grants on any databases or tables.
+  */
+   $sqlhost = "localhost";
+-  $sqluser = "";
++  $sqluser = "mysqlar";
+   $sqlpassword = "";
+ 
+ /* sort a matrix using column as key */
