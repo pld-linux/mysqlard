@@ -1,17 +1,15 @@
 # TODO:
-# - prepare separate user to run the daemon (mysqlar)
 # - webapps framework: lighttpd
-# - switch init-script to be PLD-like
-# - patch default config to put rrd's and images to /var, not %{_appdir}
 Summary:	MySQL performance logging daemon
 Name:		mysqlard
 Version:	1.0.0
-Release:	0.4
+Release:	1
 License:	GPL v2
 Group:		Applications/Databases
 Source0:	http://gert.sos.be/downloads/mysqlar/%{name}-%{version}.tar.gz
 # Source0-md5:	693ef6f36ca232131b22db7063cae940
 Source1:	%{name}.conf
+Source2:	%{name}.init
 Patch0:		%{name}-use_mysqlar_user.patch
 URL:		http://gert.sos.be/
 Requires:	rrdtool
@@ -27,7 +25,6 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 %define		_webapp		%{name}
 %define		_webappconfdir	%{_webapps}/%{_webapp}
 %define		_pkglibdir	/var/lib/%{name}
-
 
 %description
 mysqlard daemon collects MySQL(TM) performance data in a Round Robin
@@ -52,31 +49,45 @@ Interfejs PHP dla %{name}.
 %patch0 -p1
 
 %build
-%configure
+%configure \
+	--localstatedir=%{_pkglibdir} \
+	--datadir=/var/lib
 %{__make}
 
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{/etc/{rc.d/init.d,cron.{daily,weekly,monthly}},%{_sysconfdir}} \
-	$RPM_BUILD_ROOT%{_webappconfdir}
+	$RPM_BUILD_ROOT{%{_webappconfdir},%{_pkglibdir}/archive,%{_appdir}}
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
 
-mv $RPM_BUILD_ROOT%{_appdir}/*.cnf $RPM_BUILD_ROOT%{_sysconfdir}
-mv $RPM_BUILD_ROOT%{_appdir}/*.server $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
+mv $RPM_BUILD_ROOT%{_pkglibdir}/*.cnf $RPM_BUILD_ROOT%{_sysconfdir}
 ln -s %{_sysconfdir}/init.d/mysqlard $RPM_BUILD_ROOT%{_sbindir}/rcmysqlard
 
-mv $RPM_BUILD_ROOT%{_appdir}/mysqlar.daily $RPM_BUILD_ROOT/etc/cron.daily/%{name}
-mv $RPM_BUILD_ROOT%{_appdir}/mysqlar.weekly $RPM_BUILD_ROOT/etc/cron.weekly/%{name}
-mv $RPM_BUILD_ROOT%{_appdir}/mysqlar.monthly $RPM_BUILD_ROOT/etc/cron.monthly/%{name}
-#install -d $RPM_BUILD_ROOT%{_appdir}/archive
+mv $RPM_BUILD_ROOT%{_pkglibdir}/mysqlar.daily $RPM_BUILD_ROOT/etc/cron.daily/%{name}
+mv $RPM_BUILD_ROOT%{_pkglibdir}/mysqlar.weekly $RPM_BUILD_ROOT/etc/cron.weekly/%{name}
+mv $RPM_BUILD_ROOT%{_pkglibdir}/mysqlar.monthly $RPM_BUILD_ROOT/etc/cron.monthly/%{name}
+
+# Move php-related things to %{_appdir}
+mv $RPM_BUILD_ROOT%{_pkglibdir}/*.css $RPM_BUILD_ROOT%{_appdir}
+mv $RPM_BUILD_ROOT%{_pkglibdir}/*.gif $RPM_BUILD_ROOT%{_appdir}
+mv $RPM_BUILD_ROOT%{_pkglibdir}/*.php $RPM_BUILD_ROOT%{_appdir}
+
+# make links for php-frontend:
+for part in queries con tab tmptab key keybuf join range read slow slave slavec; do
+	for time in hour day week month year; do
+		ln -sf %{_pkglibdir}/$part-$time.png $RPM_BUILD_ROOT%{_appdir}
+	done
+done
 
 install %{SOURCE1} $RPM_BUILD_ROOT%{_webappconfdir}/apache.conf
 install %{SOURCE1} $RPM_BUILD_ROOT%{_webappconfdir}/httpd.conf
+install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
 
 # cleanup trash:
 rm -f $RPM_BUILD_ROOT%{_appdir}/*.spec
+rm -f $RPM_BUILD_ROOT%{_pkglibdir}/*.server
 
 %triggerin php -- apache1 < 1.3.37-3, apache1-base
 %webapp_register apache %{_webapp}
@@ -101,13 +112,15 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc AUTHORS ChangeLog NEWS README TODO
 %dir %{_sysconfdir}
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*
+%attr(640,root,stats) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/cron.*/*
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
-%{_bindir}/mysqlar_graph
-%{_sbindir}/%{name}
+%attr(755,root,root) %{_bindir}/mysqlar_graph
+%attr(755,root,root) %{_sbindir}/%{name}
 %{_mandir}/man1/*.1*
 %{_mandir}/man8/*.8*
+%attr(750,stats,http) %dir %{_pkglibdir}
+%attr(750,stats,http) %dir %{_pkglibdir}/archive
 
 %files php
 %defattr(644,root,root,755)
@@ -116,5 +129,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_webapps}/%{_webapp}/httpd.conf
 %dir %{_appdir}
 %{_appdir}/*.gif
+%{_appdir}/*.png
 %{_appdir}/*.php
 %{_appdir}/*.css
