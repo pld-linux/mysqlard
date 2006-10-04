@@ -3,7 +3,7 @@
 Summary:	MySQL performance logging daemon
 Name:		mysqlard
 Version:	1.0.0
-Release:	1.1
+Release:	1.5
 License:	GPL v2
 Group:		Applications/Databases
 Source0:	http://gert.sos.be/downloads/mysqlar/%{name}-%{version}.tar.gz
@@ -11,6 +11,7 @@ Source0:	http://gert.sos.be/downloads/mysqlar/%{name}-%{version}.tar.gz
 Source1:	%{name}.conf
 Source2:	%{name}.init
 Source3:	%{name}.crontab
+Source4:	%{name}.hourly
 Patch0:		%{name}-use_mysqlar_user.patch
 URL:		http://gert.sos.be/
 Requires:	rrdtool
@@ -86,6 +87,7 @@ install %{SOURCE1} $RPM_BUILD_ROOT%{_webappconfdir}/apache.conf
 install %{SOURCE1} $RPM_BUILD_ROOT%{_webappconfdir}/httpd.conf
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
 install %{SOURCE3} $RPM_BUILD_ROOT/etc/cron.d/%{name}
+install %{SOURCE4} $RPM_BUILD_ROOT%{_sbindir}/mysqlar.hourly
 
 # cleanup trash:
 rm -f $RPM_BUILD_ROOT%{_appdir}/*.spec
