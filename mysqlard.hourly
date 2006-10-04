@@ -1,0 +1,12 @@
+#!/bin/sh
+#  MySQL Activity Report
+#  Hourly cron job to draw activity reports
+
+graph_script=${graph_script:="/usr/bin/mysqlar_graph"}
+
+hourly=1 ${graph_script} 1>/dev/null
+daily=1 ${graph_script} 1>/dev/null
+weekly=1 ${graph_script} 1>/dev/null
+monthly=1 ${graph_script} 1>/dev/null
+yearly=1 ${graph_script} 1>/dev/null
+

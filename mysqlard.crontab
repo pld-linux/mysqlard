@@ -1,7 +1,7 @@
 #
 # cron job for the awffull
 #
-#05 * * * *	stats	nice -n 19 /usr/sbin/mysqlar.hourly
+05 * * * *	stats	nice -n 19 /usr/sbin/mysqlar.hourly
 02 5 * * *	stats	nice -n 19 /usr/sbin/mysqlar.daily
 02 2 * * 0	stats	nice -n 19 /usr/sbin/mysqlar.weekly
 02 4 1 * *	stats	nice -n 19 /usr/sbin/mysqlar.monthly
