@@ -3,13 +3,14 @@
 Summary:	MySQL performance logging daemon
 Name:		mysqlard
 Version:	1.0.0
-Release:	1
+Release:	1.1
 License:	GPL v2
 Group:		Applications/Databases
 Source0:	http://gert.sos.be/downloads/mysqlar/%{name}-%{version}.tar.gz
 # Source0-md5:	693ef6f36ca232131b22db7063cae940
 Source1:	%{name}.conf
 Source2:	%{name}.init
+Source3:	%{name}.crontab
 Patch0:		%{name}-use_mysqlar_user.patch
 URL:		http://gert.sos.be/
 Requires:	rrdtool
@@ -56,7 +57,7 @@ Interfejs PHP dla %{name}.
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{/etc/{rc.d/init.d,cron.{daily,weekly,monthly}},%{_sysconfdir}} \
+install -d $RPM_BUILD_ROOT{/etc/{rc.d/init.d,cron.d},%{_sysconfdir}} \
 	$RPM_BUILD_ROOT{%{_webappconfdir},%{_pkglibdir}/archive,%{_appdir}}
 
 %{__make} install \
@@ -65,9 +66,9 @@ install -d $RPM_BUILD_ROOT{/etc/{rc.d/init.d,cron.{daily,weekly,monthly}},%{_sys
 mv $RPM_BUILD_ROOT%{_pkglibdir}/*.cnf $RPM_BUILD_ROOT%{_sysconfdir}
 ln -s %{_sysconfdir}/init.d/mysqlard $RPM_BUILD_ROOT%{_sbindir}/rcmysqlard
 
-mv $RPM_BUILD_ROOT%{_pkglibdir}/mysqlar.daily $RPM_BUILD_ROOT/etc/cron.daily/%{name}
-mv $RPM_BUILD_ROOT%{_pkglibdir}/mysqlar.weekly $RPM_BUILD_ROOT/etc/cron.weekly/%{name}
-mv $RPM_BUILD_ROOT%{_pkglibdir}/mysqlar.monthly $RPM_BUILD_ROOT/etc/cron.monthly/%{name}
+mv $RPM_BUILD_ROOT%{_pkglibdir}/mysqlar.daily $RPM_BUILD_ROOT%{_sbindir}
+mv $RPM_BUILD_ROOT%{_pkglibdir}/mysqlar.weekly $RPM_BUILD_ROOT%{_sbindir}
+mv $RPM_BUILD_ROOT%{_pkglibdir}/mysqlar.monthly $RPM_BUILD_ROOT%{_sbindir}
 
 # Move php-related things to %{_appdir}
 mv $RPM_BUILD_ROOT%{_pkglibdir}/*.css $RPM_BUILD_ROOT%{_appdir}
@@ -84,6 +85,7 @@ done
 install %{SOURCE1} $RPM_BUILD_ROOT%{_webappconfdir}/apache.conf
 install %{SOURCE1} $RPM_BUILD_ROOT%{_webappconfdir}/httpd.conf
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
+install %{SOURCE3} $RPM_BUILD_ROOT/etc/cron.d/%{name}
 
 # cleanup trash:
 rm -f $RPM_BUILD_ROOT%{_appdir}/*.spec
@@ -113,10 +115,10 @@ rm -rf $RPM_BUILD_ROOT
 %doc AUTHORS ChangeLog NEWS README TODO
 %dir %{_sysconfdir}
 %attr(640,root,stats) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/cron.*/*
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/cron.d/%{name}
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
 %attr(755,root,root) %{_bindir}/mysqlar_graph
-%attr(755,root,root) %{_sbindir}/%{name}
+%attr(755,root,root) %{_sbindir}/*
 %{_mandir}/man1/*.1*
 %{_mandir}/man8/*.8*
 %attr(750,stats,http) %dir %{_pkglibdir}
