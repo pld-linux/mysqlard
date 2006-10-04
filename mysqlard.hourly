@@ -4,9 +4,5 @@
 
 graph_script=${graph_script:="/usr/bin/mysqlar_graph"}
 
-hourly=1 ${graph_script} 1>/dev/null
-daily=1 ${graph_script} 1>/dev/null
-weekly=1 ${graph_script} 1>/dev/null
-monthly=1 ${graph_script} 1>/dev/null
-yearly=1 ${graph_script} 1>/dev/null
+hourly=1 daily=1 weekly=1 monthly=1 yearly=1 ${graph_script} 1>/dev/null
 
