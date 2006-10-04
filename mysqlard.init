@@ -147,52 +147,60 @@ initrrd () {
 	chmod 640 ${slavefile} ${queryfile} ${keyfile} ${confile} ${tabfile}
 }
 
+start() {
+	if [ ! -f "${confile}" -o ! -f "${tabfile}" -o ! -f "${keyfile}" -o ! -f "${queryfile}" -o ! -f "${slavefile}" ]; then
+		nls "Try \`%s init' before start %s." "$0" "mysqlard"
+	else
+		if [ ! -f /var/lock/subsys/mysqlard ]; then
+			msg_starting mysqlard
+			daemon --user stats \
+				${MYSQLARD} \
+				--step=${step} \
+				--datadir=${datadir} \
+				--user=${MYSQLUSER} $MYSQLHOST \
+				--pidfile=${pidfile} \
+				${slaveopt}
+			RETVAL=$?
+			[ $RETVAL -eq 0 ] && touch /var/lock/subsys/mysqlard
+		else
+			msg_already_running mysqlard
+		fi
+	fi
+}
+
+stop() {
+	if [ -f /var/lock/subsys/mysqlard ]; then
+		msg_stopping mysqlard
+		killproc --pidfile ${pidfile} mysqlard
+		rm -f ${pidfile}
+		rm -f /var/lock/subsys/mysqlard
+	else
+		msg_not_running mysqlard
+	fi
+}
+
+RETVAL=0
 case "$1" in
-	start)
-		if [ ! -f "${confile}" -o ! -f "${tabfile}" -o ! -f "${keyfile}" -o ! -f "${queryfile}" -o ! -f "${slavefile}" ]; then
-			nls "Try \`%s init' before start %s." "$0" "mysqlard"
-		else
-			if [ ! -f /var/lock/subsys/mysqlard ]; then
-				msg_starting mysqlard
-				daemon --user stats \
-					${MYSQLARD} \
-					--step=${step} \
-					--datadir=${datadir} \
-					--user=${MYSQLUSER} $MYSQLHOST \
-					--pidfile=${pidfile} \
-					${slaveopt}
-				RETVAL=$?
-				[ $RETVAL -eq 0 ] && touch /var/lock/subsys/mysqlard
-			else
-				msg_already_running mysqlard
-			fi
-		fi
+start)
+	start
 	;;
-	stop)
-		if [ -f /var/lock/subsys/mysqlard ]; then
-			msg_stopping mysqlard
-			killproc --pidfile ${pidfile} mysqlard
-			rm -f ${pidfile}
-			rm -f /var/lock/subsys/mysqlard
-		else
-			msg_not_running mysqlard
-		fi
+stop)
+	stop
 	;;
-	restart|force-reload)
-		$0 stop
-		$0 start
-		exit $?
+restart|force-reload)
+	stop
+	start
 	;;
-	init)
-		initrrd
+init)
+	initrrd
 	;;
-	status)
-		status mysqlard
-		RETVAL=$?
+status)
+	status mysqlard
+	RETVAL=$?
 	;;
-	*)
-		msg_usage "Usage: $0 {start|stop|restart|force-reload|status|init}"
-		exit 1
+*)
+	msg_usage "Usage: $0 {start|stop|restart|force-reload|status|init}"
+	exit 1
 esac
 
-exit $?
+exit $RETVAL
