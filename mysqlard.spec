@@ -1,6 +1,8 @@
 # TODO:
+# - preun
 # - webapps framework: lighttpd
 Summary:	MySQL performance logging daemon
+Summary(pl):	Demon loguj±cy wydajno¶æ MySQL-a
 Name:		mysqlard
 Version:	1.0.0
 Release:	1.5
@@ -14,11 +16,13 @@ Source3:	%{name}.crontab
 Source4:	%{name}.hourly
 Patch0:		%{name}-use_mysqlar_user.patch
 URL:		http://gert.sos.be/
-Requires:	rrdtool
 BuildRequires:	autoconf
 BuildRequires:	automake
 Buildrequires:	mysql-devel
 Buildrequires:	rrdtool-devel
+Requires(post):	/sbin/chkconfig
+Requires:	rc-scripts
+Requires:	rrdtool
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_sysconfdir	/etc/%{name}
@@ -30,21 +34,25 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
 mysqlard daemon collects MySQL(TM) performance data in a Round Robin
-Database. The package also contains example graphing and php scripts.
+Database. The package also contains example graphing and PHP scripts.
+
+%description -l pl
+Demon mysqlard zbiera dane o wydajno¶ci MySQL-a w bazie danych RRD.
+Pakiet zawiera tak¿e proste skrypty do wykresów i PHP.
 
 %package php
 Summary:	PHP interface for %{name}
-Summary(pl):	Interfejs PHP dla %{name}
+Summary(pl):	Interfejs PHP dla mysqlarda
 Group:		Applications/System
 Requires:	%{name} = %{version}-%{release}
-Requires:       php-mysql
-Requires:       webapps
+Requires:	php-mysql
+Requires:	webapps
 
 %description php
 PHP interface for %{name}.
 
 %description php -l pl
-Interfejs PHP dla %{name}.
+Interfejs PHP dla mysqlarda.
 
 %prep
 %setup -q
@@ -65,7 +73,7 @@ install -d $RPM_BUILD_ROOT{/etc/{rc.d/init.d,cron.d},%{_sysconfdir}} \
 	DESTDIR=$RPM_BUILD_ROOT
 
 mv $RPM_BUILD_ROOT%{_pkglibdir}/*.cnf $RPM_BUILD_ROOT%{_sysconfdir}
-ln -s %{_sysconfdir}/init.d/mysqlard $RPM_BUILD_ROOT%{_sbindir}/rcmysqlard
+ln -s /etc/rc.d/init.d/mysqlard $RPM_BUILD_ROOT%{_sbindir}/rcmysqlard
 
 mv $RPM_BUILD_ROOT%{_pkglibdir}/mysqlar.daily $RPM_BUILD_ROOT%{_sbindir}
 mv $RPM_BUILD_ROOT%{_pkglibdir}/mysqlar.weekly $RPM_BUILD_ROOT%{_sbindir}
@@ -93,6 +101,13 @@ install %{SOURCE4} $RPM_BUILD_ROOT%{_sbindir}/mysqlar.hourly
 rm -f $RPM_BUILD_ROOT%{_appdir}/*.spec
 rm -f $RPM_BUILD_ROOT%{_pkglibdir}/*.server
 
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%post
+/sbin/chkconfig --add %{name}
+%service %{name} restart
+
 %triggerin php -- apache1 < 1.3.37-3, apache1-base
 %webapp_register apache %{_webapp}
 
@@ -104,13 +119,6 @@ rm -f $RPM_BUILD_ROOT%{_pkglibdir}/*.server
 
 %triggerun php -- apache < 2.2.0, apache-base
 %webapp_unregister httpd %{_webapp}
-
-%post
-/sbin/chkconfig --add %{name}
-%service %{name} restart
-
-%clean
-rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
