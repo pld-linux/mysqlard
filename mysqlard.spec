@@ -5,7 +5,7 @@ Summary:	MySQL performance logging daemon
 Summary(pl):	Demon loguj±cy wydajno¶æ MySQL-a
 Name:		mysqlard
 Version:	1.0.0
-Release:	1.5
+Release:	1.6
 License:	GPL v2
 Group:		Applications/Databases
 Source0:	http://gert.sos.be/downloads/mysqlar/%{name}-%{version}.tar.gz
@@ -45,7 +45,7 @@ Summary:	PHP interface for %{name}
 Summary(pl):	Interfejs PHP dla mysqlarda
 Group:		Applications/System
 Requires:	%{name} = %{version}-%{release}
-Requires:	php-mysql
+Requires:	php(mysql)
 Requires:	webapps
 
 %description php
