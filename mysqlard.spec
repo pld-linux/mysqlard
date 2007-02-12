@@ -2,7 +2,7 @@
 # - preun
 # - webapps framework: lighttpd
 Summary:	MySQL performance logging daemon
-Summary(pl.UTF-8):   Demon logujący wydajność MySQL-a
+Summary(pl.UTF-8):	Demon logujący wydajność MySQL-a
 Name:		mysqlard
 Version:	1.0.0
 Release:	1.6
@@ -42,7 +42,7 @@ Pakiet zawiera także proste skrypty do wykresów i PHP.
 
 %package php
 Summary:	PHP interface for %{name}
-Summary(pl.UTF-8):   Interfejs PHP dla mysqlarda
+Summary(pl.UTF-8):	Interfejs PHP dla mysqlarda
 Group:		Applications/System
 Requires:	%{name} = %{version}-%{release}
 Requires:	php(mysql)
