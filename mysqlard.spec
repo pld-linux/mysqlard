@@ -2,7 +2,7 @@
 # - preun
 # - webapps framework: lighttpd
 Summary:	MySQL performance logging daemon
-Summary(pl):	Demon loguj±cy wydajno¶æ MySQL-a
+Summary(pl.UTF-8):   Demon logujÄ…cy wydajnoÅ›Ä‡ MySQL-a
 Name:		mysqlard
 Version:	1.0.0
 Release:	1.6
@@ -36,13 +36,13 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 mysqlard daemon collects MySQL(TM) performance data in a Round Robin
 Database. The package also contains example graphing and PHP scripts.
 
-%description -l pl
-Demon mysqlard zbiera dane o wydajno¶ci MySQL-a w bazie danych RRD.
-Pakiet zawiera tak¿e proste skrypty do wykresów i PHP.
+%description -l pl.UTF-8
+Demon mysqlard zbiera dane o wydajnoÅ›ci MySQL-a w bazie danych RRD.
+Pakiet zawiera takÅ¼e proste skrypty do wykresÃ³w i PHP.
 
 %package php
 Summary:	PHP interface for %{name}
-Summary(pl):	Interfejs PHP dla mysqlarda
+Summary(pl.UTF-8):   Interfejs PHP dla mysqlarda
 Group:		Applications/System
 Requires:	%{name} = %{version}-%{release}
 Requires:	php(mysql)
@@ -51,7 +51,7 @@ Requires:	webapps
 %description php
 PHP interface for %{name}.
 
-%description php -l pl
+%description php -l pl.UTF-8
 Interfejs PHP dla mysqlarda.
 
 %prep
