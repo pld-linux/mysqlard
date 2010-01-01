@@ -18,8 +18,8 @@ Patch0:		%{name}-use_mysqlar_user.patch
 URL:		http://gert.sos.be/
 BuildRequires:	autoconf
 BuildRequires:	automake
-Buildrequires:	mysql-devel
-Buildrequires:	rrdtool-devel
+BuildRequires:	mysql-devel
+BuildRequires:	rrdtool-devel
 Requires(post):	/sbin/chkconfig
 Requires:	rc-scripts
 Requires:	rrdtool
